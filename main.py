@@ -31,9 +31,9 @@ MaxRandomDelay = 120
 # Accounts will be checked in the order they are listed
 AccountList = [
     {
-        "account_name": "Account 1",  # A custom name for the account (not important, just for logs)
-        "Authorization": "Bearer TOKEN_HERE",  # To get the token, refer to the README.md file
-        "UserAgent": "Your UserAgent",  # Refer to the README.md file to obtain a user agent
+        "account_name": "🐹",  # A custom name for the account (not important, just for logs)
+        "Authorization": "Bearer paste_token_here",  # To get the token, refer to the README.md file
+        "UserAgent": "paste_user_agent_here",  # Refer to the README.md file to obtain a user agent
         "Proxy": {},  # You can use proxies to avoid getting banned. Use {} for no proxy
         # Example of using a proxy:
         # "Proxy": {
@@ -41,18 +41,18 @@ AccountList = [
         #   "http": "http://user:pass@10.10.1.10:3128/"
         # },
         "config": {
-            "auto_tap": True,  # Enable auto tap by setting it to True, or set it to False to disable
-            "auto_free_tap_boost": True,  # Enable auto free tap boost by setting it to True, or set it to False to disable
+            "auto_tap": False,  # Enable auto tap by setting it to True, or set it to False to disable
+            "auto_free_tap_boost": False,  # Enable auto free tap boost by setting it to True, or set it to False to disable
             "auto_get_daily_cipher": True,  # Enable auto get daily cipher by setting it to True, or set it to False to disable
             "auto_get_daily_task": True,  # Enable auto get daily task by setting it to True, or set it to False to disable
             "auto_upgrade": True,  # Enable auto upgrade by setting it to True, or set it to False to disable
-            "auto_upgrade_start": 2000000,  # Start buying upgrades when the balance is greater than this amount
-            "auto_upgrade_min": 100000,  # Stop buying upgrades when the balance is less than this amount
-            # This feature will ignore the auto_upgrade_start and auto_upgrade_min.
+            "auto_upgrade_start": 5000000,  # Start buying upgrades when the balance is greater than this amount
+            "auto_upgrade_min": 2000000,  # Stop buying upgrades when the balance is less than this amount
+            # This feature will ignore the auto_upgrade_min.
             # By changing it to True, the bot will first find the overall best card and then wait for the best card to be available (based on cooldown or price).
             # When the best card is available, the bot will buy it and then wait for the next best card to be available.
             # This feature will stop buying upgrades when the balance is less than the price of the best card.
-            "wait_for_best_card": False,  # Recommended to keep it True for high level accounts
+            "wait_for_best_card": True,  # Recommended to keep it True for high level accounts
             "auto_get_task": True,  # Enable auto get (Youtube/Twitter and ...) task to True, or set it to False to disable
         },
         # If you have enabled Telegram bot logging,
@@ -61,7 +61,7 @@ AccountList = [
         # Example: "telegram_chat_id": "12345678".
         # If you do not wish to use this feature for this account, leave it empty.
         # This feature is optional and is required to enable the telegramBotLogging feature below.
-        "telegram_chat_id": "",  # String - you can get it from https://t.me/chatIDrobot
+        "telegram_chat_id": "0000000",  # String - you can get it from https://t.me/chatIDrobot
     },
     # Add more accounts if you want to use multiple accounts
     # {
@@ -82,15 +82,15 @@ AccountList = [
 # This feature is optional, and you can disable it by setting "is_active" to False.
 telegramBotLogging = {
     "is_active": False,  # Set it to True if you want to use it, and make sure to fill out the below fields
-    "bot_token": "",  # HTTP API access token from https://t.me/BotFather ~ Start your bot after creating it
+    "bot_token": "-",  # HTTP API access token from https://t.me/BotFather ~ Start your bot after creating it
     # Configure the what you want to receive logs from the bot
     "messages": {
         "general_info": True,  # General information
         "account_info": True,  # Account information
-        "http_errors": False,  # HTTP errors
-        "other_errors": False,  # Other errors
+        "http_errors": True,  # HTTP errors
+        "other_errors": True,  # Other errors
         "daily_cipher": True,  # Daily cipher
-        "daily_task": False,  # Daily task
+        "daily_task": True,  # Daily task
         "upgrades": True,  # Upgrades
     },
 }
@@ -198,7 +198,7 @@ class HamsterKombatAccount:
 
             if response.status_code != validStatusCodes:
                 log.error(
-                    f"[{self.account_name}] Status code is not {validStatusCodes}"
+                    f"[{self.account_name}] Status code is not {validStatusCodes}, is {response.status_code}"
                 )
                 log.error(f"[{self.account_name}] Response: {response.text}")
                 self.SendTelegramLog(
@@ -590,7 +590,7 @@ class HamsterKombatAccount:
             log.warning(f"[{self.account_name}] Best card is on cooldown...")
             if selected_upgrades[0]["cooldownSeconds"] > 300:
                 self.SendTelegramLog(
-                    f"[{self.account_name}] Best card is on cooldown for more than 5 minutes, Best card: {selected_upgrades[0]['name']} with profit {selected_upgrades[0]['profitPerHourDelta']} and price {number_to_string(selected_upgrades[0]['price'])}, Level: {selected_upgrades[0]['level']}",
+                    f"[{self.account_name}] Best card is on cooldown for {int(selected_upgrades[0]["cooldownSeconds"]/60)} minutes, Best card: {selected_upgrades[0]['name']} with profit {selected_upgrades[0]['profitPerHourDelta']} and price {number_to_string(selected_upgrades[0]['price'])}, Level: {selected_upgrades[0]['level']}",
                     "upgrades",
                 )
                 return False
@@ -621,10 +621,10 @@ class HamsterKombatAccount:
             f"[{self.account_name}] Best card purchase completed successfully, Your profit per hour increased by {number_to_string(self.ProfitPerHour)} coins, Spend tokens: {number_to_string(self.SpendTokens)}"
         )
 
-        self.SendTelegramLog(
-            f"[{self.account_name}] Bought {selected_upgrades[0]['name']} with profit {selected_upgrades[0]['profitPerHourDelta']} and price {number_to_string(selected_upgrades[0]['price'])}, Level: {selected_upgrades[0]['level']}",
-            "upgrades",
-        )
+        #self.SendTelegramLog(
+        #    f"[{self.account_name}] Bought {selected_upgrades[0]['name']} with profit {selected_upgrades[0]['profitPerHourDelta']} and price {number_to_string(selected_upgrades[0]['price'])}, Level: {selected_upgrades[0]['level']}",
+        #    "upgrades",
+        #)
 
         return True
 
@@ -649,10 +649,6 @@ class HamsterKombatAccount:
 
         log.info(
             f"\033[1;35m[{self.account_name}] Account ID: {AccountBasicData['telegramUser']['id']}, Account detected as bot: {AccountBasicData['telegramUser']['isBot']}\033[0m"
-        )
-        self.SendTelegramLog(
-            f"[{self.account_name}] Account ID: {AccountBasicData['telegramUser']['id']}, Account detected as bot: {AccountBasicData['telegramUser']['isBot']}",
-            "account_info",
         )
 
         log.info(f"[{self.account_name}] Getting account config data...")
@@ -687,6 +683,10 @@ class HamsterKombatAccount:
         if getAccountDataStatus is False:
             return
 
+        self.SendTelegramLog(
+            f"[{self.account_name}]\n🪙: {number_to_string(self.balanceCoins)}\n🤖: {AccountBasicData['telegramUser']['isBot']}",
+            "account_info",
+        )
         log.info(
             f"[{self.account_name}] Account Balance Coins: {number_to_string(self.balanceCoins)}, Available Taps: {self.availableTaps}, Max Taps: {self.maxTaps}"
         )
@@ -743,6 +743,10 @@ class HamsterKombatAccount:
                     f"[{self.account_name}] Daily cipher claimed successfully. Text was: {DailyCipher}, Morse code was: {TextToMorseCode(DailyCipher)}",
                     "daily_cipher",
                 )
+                time.sleep(2)
+                getAccountDataStatus = self.getAccountData()
+                if getAccountDataStatus is False:
+                    return
 
         if self.config["auto_get_daily_task"]:
             log.info(f"[{self.account_name}] Checking for daily task...")
@@ -773,6 +777,10 @@ class HamsterKombatAccount:
                     f"[{self.account_name}] Daily task completed successfully, Day: {day}, Reward coins: {number_to_string(rewardCoins)}",
                     "daily_task",
                 )
+                time.sleep(2)
+                getAccountDataStatus = self.getAccountData()
+                if getAccountDataStatus is False:
+                    return
 
         if self.config["auto_get_task"]:
             log.info(f"[{self.account_name}] Checking for available task...")
@@ -826,16 +834,49 @@ class HamsterKombatAccount:
         self.SpendTokens = 0
 
         if self.config["wait_for_best_card"]:
+            buy_best_card_counter = 0
+            bought_cards = False
             while True:
-                if not self.BuyBestCard():
-                    break
+                if self.balanceCoins > self.config["auto_upgrade_start"]:
+                    if not self.BuyBestCard():
+                        break
+                    bought_cards = True
+                else:
+                    buy_best_card_counter = 4
+                    if not bought_cards:
+                        self.SendTelegramLog(
+                            f"[{self.account_name}]\nBuying no upgrades because balance is below {number_to_string(self.config["auto_upgrade_start"])}",
+                            "upgrades",
+                        )
+                if buy_best_card_counter == 4:
+                    buy_best_card_counter = 0
+                    log.info(
+                        f"[{self.account_name}]Account balance: {number_to_string(self.balanceCoins)} 🪙, Your profit per hour is {number_to_string(self.earnPassivePerHour)} (+{number_to_string(self.ProfitPerHour)}), Spent: {number_to_string(self.SpendTokens)}"
+                    )
+                    self.SendTelegramLog(
+                        f"[{self.account_name}]\n🪙: {number_to_string(self.balanceCoins)}\n📈: {number_to_string(self.earnPassivePerHour)} (➕{number_to_string(self.ProfitPerHour)})\n💸: {number_to_string(self.SpendTokens)}",
+                        "upgrades",
+                    )
+                    if bought_cards:
+                        self.config["auto_upgrade_start"] += self.earnPassivePerHour
+                        self.SendTelegramLog(
+                            f"[{self.account_name}]\nNew minimum balance to buy cards: {number_to_string(self.config["auto_upgrade_start"])}",
+                            "upgrades",
+                        )
+                        bought_cards = False
+                    random_sleep_time = 3600 + random.randint(1,120)
+                    log.info(f"[{self.account_name}]Sleeping for {int(random_sleep_time/60)} minutes.")
+                    time.sleep(random_sleep_time)
+                    self.getAccountData()
+                else:
+                    buy_best_card_counter+=1
 
             self.getAccountData()
             log.info(
-                f"[{self.account_name}] Final account balance: {number_to_string(self.balanceCoins)} coins, Your profit per hour is {number_to_string(self.earnPassivePerHour)} (+{number_to_string(self.ProfitPerHour)}), Spent: {number_to_string(self.SpendTokens)}"
+                f"[{self.account_name}] Account balance: {number_to_string(self.balanceCoins)} 🪙, Your profit per hour is {number_to_string(self.earnPassivePerHour)} (+{number_to_string(self.ProfitPerHour)}), Spent: {number_to_string(self.SpendTokens)}"
             )
             self.SendTelegramLog(
-                f"[{self.account_name}] Final account balance: {number_to_string(self.balanceCoins)} coins, Your profit per hour is {number_to_string(self.earnPassivePerHour)} (+{number_to_string(self.ProfitPerHour)}), Spent: {number_to_string(self.SpendTokens)}",
+                f"[{self.account_name}]\n🪙: {number_to_string(self.balanceCoins)}\n📈: {number_to_string(self.earnPassivePerHour)} (➕{number_to_string(self.ProfitPerHour)})\n💸: {number_to_string(self.SpendTokens)}",
                 "upgrades",
             )
             return
@@ -906,10 +947,10 @@ class HamsterKombatAccount:
         log.info(f"[{self.account_name}] Upgrades purchase completed successfully.")
         self.getAccountData()
         log.info(
-            f"[{self.account_name}] Final account balance: {number_to_string(self.balanceCoins)} coins, Your profit per hour is {number_to_string(self.earnPassivePerHour)} (+{number_to_string(self.ProfitPerHour)}), Spent: {number_to_string(self.SpendTokens)}"
+            f"[{self.account_name}] Account balance: {number_to_string(self.balanceCoins)} 🪙, Your profit per hour is {number_to_string(self.earnPassivePerHour)} (+{number_to_string(self.ProfitPerHour)}), Spent: {number_to_string(self.SpendTokens)}"
         )
         self.SendTelegramLog(
-            f"[{self.account_name}] Final account balance: {number_to_string(self.balanceCoins)} coins, Your profit per hour is {number_to_string(self.earnPassivePerHour)} (+{number_to_string(self.ProfitPerHour)}), Spent: {number_to_string(self.SpendTokens)}",
+            f"[{self.account_name}] Account balance: {number_to_string(self.balanceCoins)} 🪙, Your profit per hour is {number_to_string(self.earnPassivePerHour)} (+{number_to_string(self.ProfitPerHour)}), Spent: {number_to_string(self.SpendTokens)}",
             "account_info",
         )
 
@@ -918,10 +959,6 @@ def RunAccounts():
     accounts = []
     for account in AccountList:
         accounts.append(HamsterKombatAccount(account))
-        accounts[-1].SendTelegramLog(
-            f"[{accounts[-1].account_name}] Hamster Kombat Auto farming bot started successfully.",
-            "general_info",
-        )
 
     while True:
         log.info("\033[1;33mStarting all accounts...\033[0m")

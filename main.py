@@ -127,6 +127,12 @@ class HamsterKombatAccount:
         self.SpendTokens = 0
         self.account_data = None
         self.telegram_chat_id = AccountData["telegram_chat_id"]
+        try:
+            f = open("auto_upgrade_start.txt", "r")
+            self.config["auto_upgrade_start"] = int(f.read().strip())
+            f.close()
+        except:
+            pass
 
     def SendTelegramLog(self, message, level):
         print(message)
@@ -859,6 +865,9 @@ class HamsterKombatAccount:
                     )
                     if bought_cards:
                         self.config["auto_upgrade_start"] += self.earnPassivePerHour
+                        f = open("auto_upgrade_start.txt", "w")
+                        f.write(str(self.config["auto_upgrade_start"]))
+                        f.close()
                         self.SendTelegramLog(
                             f"[{self.account_name}]\nNew minimum balance to buy cards: {number_to_string(self.config["auto_upgrade_start"])}",
                             "upgrades",
